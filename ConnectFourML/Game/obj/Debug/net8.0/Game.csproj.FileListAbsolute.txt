@@ -1,0 +1,12 @@
+C:\Users\Trist\Desktop\Projet-ML-Mathis-Tristan\ConnectFourML\Game\bin\Debug\net8.0\Game.deps.json
+C:\Users\Trist\Desktop\Projet-ML-Mathis-Tristan\ConnectFourML\Game\bin\Debug\net8.0\Game.dll
+C:\Users\Trist\Desktop\Projet-ML-Mathis-Tristan\ConnectFourML\Game\bin\Debug\net8.0\Game.pdb
+C:\Users\Trist\Desktop\Projet-ML-Mathis-Tristan\ConnectFourML\Game\obj\Debug\net8.0\Game.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Trist\Desktop\Projet-ML-Mathis-Tristan\ConnectFourML\Game\obj\Debug\net8.0\Game.AssemblyInfoInputs.cache
+C:\Users\Trist\Desktop\Projet-ML-Mathis-Tristan\ConnectFourML\Game\obj\Debug\net8.0\Game.AssemblyInfo.cs
+C:\Users\Trist\Desktop\Projet-ML-Mathis-Tristan\ConnectFourML\Game\obj\Debug\net8.0\Game.csproj.CoreCompileInputs.cache
+C:\Users\Trist\Desktop\Projet-ML-Mathis-Tristan\ConnectFourML\Game\obj\Debug\net8.0\Game.sourcelink.json
+C:\Users\Trist\Desktop\Projet-ML-Mathis-Tristan\ConnectFourML\Game\obj\Debug\net8.0\Game.dll
+C:\Users\Trist\Desktop\Projet-ML-Mathis-Tristan\ConnectFourML\Game\obj\Debug\net8.0\refint\Game.dll
+C:\Users\Trist\Desktop\Projet-ML-Mathis-Tristan\ConnectFourML\Game\obj\Debug\net8.0\Game.pdb
+C:\Users\Trist\Desktop\Projet-ML-Mathis-Tristan\ConnectFourML\Game\obj\Debug\net8.0\ref\Game.dll

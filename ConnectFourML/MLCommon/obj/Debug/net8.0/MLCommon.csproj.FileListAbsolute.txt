@@ -1,0 +1,13 @@
+C:\Users\Trist\Desktop\Projet-ML-Mathis-Tristan\ConnectFourML\MLCommon\bin\Debug\net8.0\MLCommon.deps.json
+C:\Users\Trist\Desktop\Projet-ML-Mathis-Tristan\ConnectFourML\MLCommon\bin\Debug\net8.0\MLCommon.dll
+C:\Users\Trist\Desktop\Projet-ML-Mathis-Tristan\ConnectFourML\MLCommon\bin\Debug\net8.0\MLCommon.pdb
+C:\Users\Trist\Desktop\Projet-ML-Mathis-Tristan\ConnectFourML\MLCommon\obj\Debug\net8.0\MLCommon.csproj.AssemblyReference.cache
+C:\Users\Trist\Desktop\Projet-ML-Mathis-Tristan\ConnectFourML\MLCommon\obj\Debug\net8.0\MLCommon.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Trist\Desktop\Projet-ML-Mathis-Tristan\ConnectFourML\MLCommon\obj\Debug\net8.0\MLCommon.AssemblyInfoInputs.cache
+C:\Users\Trist\Desktop\Projet-ML-Mathis-Tristan\ConnectFourML\MLCommon\obj\Debug\net8.0\MLCommon.AssemblyInfo.cs
+C:\Users\Trist\Desktop\Projet-ML-Mathis-Tristan\ConnectFourML\MLCommon\obj\Debug\net8.0\MLCommon.csproj.CoreCompileInputs.cache
+C:\Users\Trist\Desktop\Projet-ML-Mathis-Tristan\ConnectFourML\MLCommon\obj\Debug\net8.0\MLCommon.sourcelink.json
+C:\Users\Trist\Desktop\Projet-ML-Mathis-Tristan\ConnectFourML\MLCommon\obj\Debug\net8.0\MLCommon.dll
+C:\Users\Trist\Desktop\Projet-ML-Mathis-Tristan\ConnectFourML\MLCommon\obj\Debug\net8.0\refint\MLCommon.dll
+C:\Users\Trist\Desktop\Projet-ML-Mathis-Tristan\ConnectFourML\MLCommon\obj\Debug\net8.0\MLCommon.pdb
+C:\Users\Trist\Desktop\Projet-ML-Mathis-Tristan\ConnectFourML\MLCommon\obj\Debug\net8.0\ref\MLCommon.dll
