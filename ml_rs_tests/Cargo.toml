@@ -1,9 +1,0 @@
-[package]
-name = "ml_rs_tests"
-version = "0.1.0"
-edition = "2021"
-
-[dependencies]
-ml_rs = { path = "../ml-rs" }
-plotters = "0.3"
-rand = "0.9.2"
