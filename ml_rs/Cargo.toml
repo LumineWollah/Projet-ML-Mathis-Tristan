@@ -3,5 +3,9 @@ name = "ml_lib"
 version = "0.1.0"
 edition = "2021"
 
+[lib]
+name = "ml_lib"
+crate-type = ["cdylib"]
+
 [dependencies]
 rand = "0.8"
