@@ -2,9 +2,9 @@ use rand::Rng;
 
 pub struct MyMLP {
     /// neurons per layer (input included)
-    d: Vec<usize>,
+    pub(crate) d: Vec<usize>,
     /// number of weight layers (L = d.len() - 1)
-    L: usize,
+    pub(crate) L: usize,
     /// W[l][i][j]
     /// - l = layer index (1..=L), l=0 unused
     /// - i = neuron index in previous layer (0..=d[l-1])  (0 = bias)
