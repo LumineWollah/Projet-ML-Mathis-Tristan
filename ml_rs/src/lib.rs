@@ -9,8 +9,6 @@ use std::fs::File;
 use std::io::{BufRead, BufReader, Read, Write};
 use std::os::raw::c_char;
 
-// -------------------- Training dataset --------------------
-
 const DATASET_PATH: &str = "dataset.csv";
 
 pub const INPUT_DIM: usize = 6 * 7 * 3 + 3;
@@ -143,7 +141,6 @@ fn init_model() -> MyMLP {
 //         for j=0..=d[l]:
 //           W[l][i][j]
 //
-// This format is intentionally simple and stable.
 
 const TXT_MAGIC: &str = "MLRSMLP_TXT1";
 
@@ -256,16 +253,14 @@ fn cstr_to_string(ptr: *const c_char) -> Option<String> {
     Some(s.to_string())
 }
 
-// -------------------- FFI: create / load / save / destroy --------------------
-
 #[no_mangle]
 pub extern "C" fn create_ai() -> *mut MyMLP {
     let mlp = init_model();
     Box::into_raw(Box::new(mlp))
 }
 
-/// Load a model from a TEXT file.
-/// Returns null on failure.
+/// Load a model from a TEXT file
+/// Returns null on failure
 #[no_mangle]
 pub extern "C" fn load_ai_text(path: *const c_char) -> *mut MyMLP {
     let path = match cstr_to_string(path) {
@@ -291,8 +286,8 @@ pub extern "C" fn load_ai_text(path: *const c_char) -> *mut MyMLP {
     Box::into_raw(Box::new(mlp))
 }
 
-/// Save a model to a TEXT file.
-/// Returns 1 on success, 0 on failure.
+/// Save a model to a TEXT file
+/// Returns 1 on success, 0 on failure
 #[no_mangle]
 pub extern "C" fn save_ai_text(ai: *mut MyMLP, path: *const c_char) -> i32 {
     if ai.is_null() {
