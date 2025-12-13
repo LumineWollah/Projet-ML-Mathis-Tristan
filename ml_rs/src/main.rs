@@ -1,8 +1,10 @@
 mod linear_perceptron;
 mod naive_multi_layer_perceptron;
+mod rbf_network;
 
 use linear_perceptron::LinearPerceptron;
 use naive_multi_layer_perceptron::MyMLP;
+use rbf_network::{RbfNetwork, kmeans};
 use rand::{Rng, SeedableRng};
 use rand::rngs::StdRng;
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -175,6 +177,18 @@ fn main() {
     if (args.contains(&"-r".to_string()) || args.contains(&"--regression".to_string())) && args.contains(&"--mlp".to_string()) {
         println!("Running MLP regression tests...");
         run_mlp_regression_tests();
+        return;
+    }
+
+    if (args.contains(&"-c".to_string()) || args.contains(&"--classification".to_string())) && args.contains(&"--rbf".to_string()) {
+        println!("Running RBF classification tests...");
+        run_rbf_classification_tests();
+        return;
+    }
+
+    if (args.contains(&"-r".to_string()) || args.contains(&"--regression".to_string())) && args.contains(&"--rbf".to_string()) {
+        println!("Running RBF regression tests...");
+        run_rbf_regression_tests();
         return;
     }
 
@@ -927,5 +941,282 @@ fn run_mlp_regression_tests() {
     for (x, y) in inputs.iter().zip(outputs.iter()) {
         let p = mlp.predict(x, false)[0];
         println!("x={:?}, y={}, pred={:.2}", x, y[0], p);
+    }
+}
+
+pub fn run_rbf_classification_tests() {
+    // #### CLASSIFICATION ####
+
+    // Helper: choose K safely and compute centers
+    fn build_rbf(xs: &[Vec<f64>], k: usize, gamma: f64) -> RbfNetwork {
+        let k_eff = k.min(xs.len()).max(1);
+        let centers = kmeans(xs, k_eff, 30);
+        RbfNetwork::new(centers, gamma)
+    }
+
+    // Helper: sign output in the same spirit as your prints
+    fn sign01(v: i32) -> f64 {
+        if v >= 0 { 1.0 } else { -1.0 }
+    }
+
+    // ## Test 1: Linear Simple (OK)
+    println!("\n=== RBF Test 1: Linear Simple ===\n");
+    let inputs = vec![
+        vec![1.0, 1.0],
+        vec![2.0, 3.0],
+        vec![3.0, 3.0],
+    ];
+
+    let outputs = vec![
+        vec![ 1.0],
+        vec![-1.0],
+        vec![-1.0],
+    ];
+
+    let ys: Vec<f64> = outputs.iter().map(|y| y[0]).collect();
+
+    let mut rbf = build_rbf(&inputs, 3, 3.0);
+    println!("Training...");
+    rbf.train(&inputs, &ys);
+
+    println!("\nResults:");
+    for (x, y) in inputs.iter().zip(outputs.iter()) {
+        let raw = rbf.predict_regression(x);
+        let p = rbf.predict_classification(x);
+        println!("x={:?}, y={}, raw={:.4}, pred_sign={:.2}", x, y[0], raw, sign01(p));
+    }
+
+    // ## Test 2: Linear Multiple (OK)
+    println!("\n=== RBF Test 2: Linear Multiple ===\n");
+    let (inputs, outputs) = generate_test_2_dataset();
+    let ys: Vec<f64> = outputs.iter().map(|y| y[0]).collect();
+
+    let mut rbf = build_rbf(&inputs, 20, 2.0);
+    println!("Training...");
+    rbf.train(&inputs, &ys);
+
+    println!("\nResults:");
+    for i in 0..10 {
+        let idx = i * 10;
+        let raw = rbf.predict_regression(&inputs[idx]);
+        let p = rbf.predict_classification(&inputs[idx]);
+        println!(
+            "x={:?}, y={}, raw={:.4}, pred_sign={:.2}",
+            inputs[idx], outputs[idx][0], raw, sign01(p)
+        );
+    }
+
+    // ## Test 3: XOR (OK)
+    println!("\n=== RBF Test 3: XOR ===\n");
+    let inputs = vec![
+        vec![0.0, 0.0],
+        vec![0.0, 1.0],
+        vec![1.0, 0.0],
+        vec![1.0, 1.0],
+    ];
+
+    // MLP-style XOR labels (0/1) but convert to +/-1 for RBF sign rule
+    let outputs01 = vec![
+        vec![0.0],
+        vec![1.0],
+        vec![1.0],
+        vec![0.0],
+    ];
+
+    let ys: Vec<f64> = outputs01
+        .iter()
+        .map(|y| if y[0] > 0.5 { 1.0 } else { -1.0 })
+        .collect();
+
+    let mut rbf = build_rbf(&inputs, 4, 5.0);
+    println!("Training...");
+    rbf.train(&inputs, &ys);
+
+    println!("\nResults:");
+    for (x, y01) in inputs.iter().zip(outputs01.iter()) {
+        let raw = rbf.predict_regression(x);
+        let p = rbf.predict_classification(x);
+        let expected = if y01[0] > 0.5 { 1 } else { -1 };
+        println!("x={:?}, y01={}, raw={:.4}, pred_sign={}", x, y01[0], raw, p);
+        println!("    expected_sign={}", expected);
+    }
+
+    // ## Test 4: Cross (OK)
+    println!("\n=== RBF Test 4: Cross ===\n");
+    let (inputs, outputs) = generate_test_4_dataset();
+    let ys: Vec<f64> = outputs.iter().map(|y| y[0]).collect();
+
+    let mut rbf = build_rbf(&inputs, 40, 3.0);
+    println!("Training...");
+    rbf.train(&inputs, &ys);
+
+    println!("\nResults:");
+    for i in 0..50 {
+        let idx = i * 10;
+        let raw = rbf.predict_regression(&inputs[idx]);
+        let p = rbf.predict_classification(&inputs[idx]);
+        println!(
+            "x={:?}, y={}, raw={:.4}, pred_sign={:.2}",
+            inputs[idx], outputs[idx][0], raw, sign01(p)
+        );
+    }
+
+    // ## Test 5: Three Classes (one-vs-all)
+    println!("\n=== RBF Test 5: Three Classes (One-vs-All) ===\n");
+    let (inputs, outputs) = generate_test_5_dataset();
+
+    // Build scalar targets per classifier (+1 / -1)
+    let ys1: Vec<f64> = outputs.iter().map(|y| y[0]).collect();
+    let ys2: Vec<f64> = outputs.iter().map(|y| y[1]).collect();
+    let ys3: Vec<f64> = outputs.iter().map(|y| y[2]).collect();
+
+    let mut rbf1 = build_rbf(&inputs, 40, 3.0);
+    let mut rbf2 = build_rbf(&inputs, 40, 3.0);
+    let mut rbf3 = build_rbf(&inputs, 40, 3.0);
+
+    println!("Training...");
+    rbf1.train(&inputs, &ys1);
+    rbf2.train(&inputs, &ys2);
+    rbf3.train(&inputs, &ys3);
+
+    println!("\nResults:");
+    for i in 0..30 {
+        let idx = i * 10;
+        let x = &inputs[idx];
+        let p = vec![
+            rbf1.predict_regression(x),
+            rbf2.predict_regression(x),
+            rbf3.predict_regression(x),
+        ];
+        println!("x={:?}, y={:?}, pred={:.3?}", x, outputs[idx], p);
+    }
+
+    // ## Test 6: Multi Cross (one-vs-all)
+    println!("\n=== RBF Test 6: Multi Cross (One-vs-All) ===\n");
+    let (inputs, outputs) = generate_test_6_dataset();
+
+    let ys1: Vec<f64> = outputs.iter().map(|y| y[0]).collect();
+    let ys2: Vec<f64> = outputs.iter().map(|y| y[1]).collect();
+    let ys3: Vec<f64> = outputs.iter().map(|y| y[2]).collect();
+
+    let mut rbf1 = build_rbf(&inputs, 60, 4.0);
+    let mut rbf2 = build_rbf(&inputs, 60, 4.0);
+    let mut rbf3 = build_rbf(&inputs, 60, 4.0);
+
+    println!("Training...");
+    rbf1.train(&inputs, &ys1);
+    rbf2.train(&inputs, &ys2);
+    rbf3.train(&inputs, &ys3);
+
+    println!("\nResults:");
+    for i in 0..30 {
+        let idx = i * 10;
+        let x = &inputs[idx];
+        let p = vec![
+            rbf1.predict_regression(x),
+            rbf2.predict_regression(x),
+            rbf3.predict_regression(x),
+        ];
+        println!("x={:?}, y={:?}, pred={:.3?}", x, outputs[idx], p);
+    }
+}
+
+pub fn run_rbf_regression_tests() {
+    // #### REGRESSION ####
+
+    fn build_rbf(xs: &[Vec<f64>], k: usize, gamma: f64) -> RbfNetwork {
+        let k_eff = k.min(xs.len()).max(1);
+        let centers = kmeans(xs, k_eff, 30);
+        RbfNetwork::new(centers, gamma)
+    }
+
+    // Test 1: Linear Simple 2D (OK)
+    println!("\n=== RBF Regression Test 1: Linear Simple 2D ===\n");
+    let inputs = vec![vec![1.0], vec![2.0]];
+    let outputs = vec![vec![2.0], vec![4.0]];
+    let ys: Vec<f64> = outputs.iter().map(|y| y[0]).collect();
+
+    let mut rbf = build_rbf(&inputs, 2, 2.0);
+    println!("Training...");
+    rbf.train(&inputs, &ys);
+
+    println!("\nResults:");
+    for (x, y) in inputs.iter().zip(outputs.iter()) {
+        let p = rbf.predict_regression(x);
+        println!("x={:?}, y={}, pred={:.4}", x, y[0], p);
+    }
+
+    // Test 2: Non-Linear Simple 2D (OK)
+    println!("\n=== RBF Regression Test 2: Non-Linear Simple 2D ===\n");
+    let inputs = vec![vec![1.0], vec![2.0], vec![3.0]];
+    let outputs = vec![vec![2.0], vec![3.0], vec![2.5]];
+    let ys: Vec<f64> = outputs.iter().map(|y| y[0]).collect();
+
+    let mut rbf = build_rbf(&inputs, 3, 2.0);
+    println!("Training...");
+    rbf.train(&inputs, &ys);
+
+    println!("\nResults:");
+    for (x, y) in inputs.iter().zip(outputs.iter()) {
+        let p = rbf.predict_regression(x);
+        println!("x={:?}, y={}, pred={:.4}", x, y[0], p);
+    }
+
+    // Test 3: Linear Simple 3D (OK)
+    println!("\n=== RBF Regression Test 3: Linear Simple 3D ===\n");
+    let inputs = vec![vec![1.0, 1.0], vec![2.0, 2.0], vec![3.0, 1.0]];
+    let outputs = vec![vec![2.0], vec![3.0], vec![2.5]];
+    let ys: Vec<f64> = outputs.iter().map(|y| y[0]).collect();
+
+    let mut rbf = build_rbf(&inputs, 3, 2.0);
+    println!("Training...");
+    rbf.train(&inputs, &ys);
+
+    println!("\nResults:");
+    for (x, y) in inputs.iter().zip(outputs.iter()) {
+        let p = rbf.predict_regression(x);
+        println!("x={:?}, y={}, pred={:.4}", x, y[0], p);
+    }
+
+    // Test 4: Linear Tricky 3D (OK)
+    println!("\n=== RBF Regression Test 4: Linear Tricky 3D ===\n");
+    let inputs = vec![vec![1.0, 1.0], vec![2.0, 2.0], vec![3.0, 3.0]];
+    let outputs = vec![vec![1.0], vec![2.0], vec![3.0]];
+    let ys: Vec<f64> = outputs.iter().map(|y| y[0]).collect();
+
+    let mut rbf = build_rbf(&inputs, 3, 2.0);
+    println!("Training...");
+    rbf.train(&inputs, &ys);
+
+    println!("\nResults:");
+    for (x, y) in inputs.iter().zip(outputs.iter()) {
+        let p = rbf.predict_regression(x);
+        println!("x={:?}, y={}, pred={:.4}", x, y[0], p);
+    }
+
+    // Test 5: Non-Linear Simple 3D (OK)
+    println!("\n=== RBF Regression Test 5: Non-Linear Simple 3D ===\n");
+    let inputs = vec![
+        vec![1.0, 0.0],
+        vec![0.0, 1.0],
+        vec![1.0, 1.0],
+        vec![0.0, 0.0],
+    ];
+    let outputs = vec![
+        vec![2.0],
+        vec![1.0],
+        vec![-2.0],
+        vec![-1.0],
+    ];
+    let ys: Vec<f64> = outputs.iter().map(|y| y[0]).collect();
+
+    let mut rbf = build_rbf(&inputs, 4, 3.0);
+    println!("Training...");
+    rbf.train(&inputs, &ys);
+
+    println!("\nResults:");
+    for (x, y) in inputs.iter().zip(outputs.iter()) {
+        let p = rbf.predict_regression(x);
+        println!("x={:?}, y={}, pred={:.4}", x, y[0], p);
     }
 }

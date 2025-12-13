@@ -1,5 +1,6 @@
 pub mod naive_multi_layer_perceptron;
 pub mod linear_perceptron;
+pub mod rbf_network;
 
 use naive_multi_layer_perceptron::MyMLP;
 
@@ -121,7 +122,7 @@ fn init_model() -> MyMLP {
 
     let mut mlp = MyMLP::new(&[INPUT_DIM, 64, 64, OUTPUT_DIM]);
 
-    let num_iter = 200_000;
+    let num_iter = 2_000_000;
     let alpha = 0.01;
 
     println!("Training MLP for {} iterations...", num_iter);
